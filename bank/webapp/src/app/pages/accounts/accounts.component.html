@@ -1,0 +1,47 @@
+<h1>Cuentas</h1>
+<button class="btn btn-primary" (click)="isCreatingAccount = true">
+    <cds-icon shape="plus"></cds-icon>
+    Agregar cuenta
+</button>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Numero de cuenta</th>
+            <th>Moneda</th>
+            <th>Saldo</th>
+            <th>Transferencias</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let account of accounts">
+            <td>{{ account.number }}
+                <button type="button" class="btn btn-link btn-icon" aria-label="home" (click)="copyText(account.number)">
+                    <cds-icon shape="copy"></cds-icon>
+                </button>
+            </td>
+            <td>{{ account.currency }}</td>
+            <td>{{ account.balance }}</td>
+            <td>
+                <a routerLink="{{account.number}}"><cds-icon shape="pop-out"></cds-icon></a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<clr-modal [(clrModalOpen)]="isCreatingAccount">
+    <h3 class="modal-title">Crear nueva cuenta</h3>
+    <div class="modal-body">
+        <form clrForm clrLayout="horizontal" [formGroup]="createForm">
+            <clr-select-container>
+                <label>Moneda</label>
+                <select clrSelect name="currency" formControlName="currency" class="clr-select">
+                  <option *ngFor="let currency of currencies" [value]="currency.Id"> {{ currency.Name }} | {{ currency.Id}}</option>
+                </select>
+            </clr-select-container>
+        </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger-outline" (click)="isCreatingAccount = false">Cancel</button>
+      <button [clrLoading]="submitBtnState" type="button" class="btn btn-primary" (click)="createAccount()">Crear</button>
+    </div>
+</clr-modal>

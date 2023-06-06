@@ -1,0 +1,33 @@
+<div class="main-container">
+  <header class="header header-6">
+    <div class="branding">
+        <a href="/" class="nav-link">
+            <span class="title">Banco de Achumani</span>
+        </a>
+    </div>
+    <div class="header-nav" *ngIf="username">
+        <a routerLink="./cuentas" class="nav-link" routerLinkActive="active"><span class="nav-text">Cuentas</span></a>
+        <a routerLink="./transferencias" class="nav-link" routerLinkActive="active"><span class="nav-text">Transferencias</span></a>
+    </div>
+    <div class="header-actions">
+        <clr-dropdown *ngIf="username">
+            <button class="nav-text" clrDropdownTrigger aria-label="open user profile">
+                {{username}}
+                <cds-icon shape="angle" direction="down"></cds-icon>
+            </button>
+            <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
+                <div clrDropdownItem (click)="logout()">Salir</div>
+            </clr-dropdown-menu>
+        </clr-dropdown>
+        <button type="button" class="btn btn-link ingresar" aria-label="home" (click)="login()" *ngIf="!username">
+            Ingresar
+        </button>
+    </div>
+  </header>
+  <div class="content-container">
+    <div class="content-area">
+        <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+

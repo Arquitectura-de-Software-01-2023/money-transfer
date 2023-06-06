@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GatewayLocal" type="Application" factoryName="Application">
+    <envs>
+      <env name="LOCALHOST" value="localhost" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="ucb.arch.moneytransfer.gateway.GatewayApplicationKt" />
+    <module name="gateway" />
+    <option name="WORKING_DIRECTORY" value="$ContentRoot$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

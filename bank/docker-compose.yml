@@ -1,0 +1,109 @@
+version: '3.9'
+name: bank-services
+
+x-configuration-variables: &configuration-variables
+  CONFIGURATION_PORT: ${CONFIGURATION_PORT}
+  CONFIGURATION_NAME: ${CONFIGURATION_NAME}
+  CONFIGURATION_BRANCH: ${CONFIGURATION_BRANCH}
+  PROFILE: ${PROFILE}
+
+x-discovery-variables: &discovery-variables
+  DISCOVERY_PORT: ${DISCOVERY_PORT}
+  DISCOVERY_NAME: ${DISCOVERY_NAME}
+
+x-gateway-variables: &gateway-variables
+  GATEWAY_PORT: ${GATEWAY_PORT}
+  GATEWAY_NAME: ${GATEWAY_NAME}
+
+x-aaa-be-variables: &aaa-be-variables
+  AAA_REALM: ${AAA_REALM}
+  AAA_CLIENT: ${AAA_CLIENT}
+  AAA_CLIENT_SECRET: ${AAA_CLIENT_SECRET}
+
+x-db-credentials: &db-credentials
+  DB_USER: ${DB_USER}
+  DB_PASSWORD: ${DB_PASSWORD}
+
+x-amqp-variables: &amqp-variables
+  RABBITMQ_USER: ${RABBITMQ_USER}
+  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+  RABBITMQ_PORT: ${RABBITMQ_PORT}
+
+services:
+  discovery:
+    container_name: ${DISCOVERY_NAME}
+    image: bank-discovery:1.0.3
+    build:
+      context: ../discovery/.
+    environment: 
+      <<: [*configuration-variables, *discovery-variables]
+    # ports:
+    #   - ${DISCOVERY_PORT}:${DISCOVERY_PORT}
+    networks:
+      - bank-infrastructure_network
+
+  accounts:
+    container_name: ${ACCOUNTS_NAME}
+    image: bank-accounts:1.0.6
+    build:
+      context: ./accounts/.
+    environment: 
+      <<: [*configuration-variables, *discovery-variables, *aaa-be-variables, *db-credentials]
+      ACCOUNTS_NAME: ${ACCOUNTS_NAME}
+      ACCOUNTS_PORT: ${ACCOUNTS_PORT}
+  #  ports:
+  #    - ${ACCOUNTS_PORT}:${ACCOUNTS_PORT}
+    volumes:
+      - ./data/logs:/logs
+    networks:
+      - bank-infrastructure_network
+    depends_on:
+      discovery:
+        condition: service_healthy    
+
+  transfers:
+    container_name: ${TRANSFERS_NAME}
+    image: bank-transfers:1.0.8
+    build:
+      context: ./transfers/.
+    environment: 
+      <<: [*configuration-variables, *discovery-variables, *aaa-be-variables, *db-credentials, *amqp-variables]
+      TRANSFERS_NAME: ${TRANSFERS_NAME}
+      TRANSFERS_PORT: ${TRANSFERS_PORT}
+    #ports:
+    # - ${TRANSFERS_PORT}:${TRANSFERS_PORT}
+    volumes:
+      - ./data/logs:/logs
+    networks:
+      - bank-infrastructure_network
+    depends_on:
+      discovery:
+        condition: service_healthy
+        
+  gateway:
+    container_name: ${GATEWAY_NAME}
+    image: bank-gateway:1.0.5
+    build:
+      context: ../gateway/.
+    environment:
+      <<: [*discovery-variables, *gateway-variables]
+    ports:
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
+    restart: always
+    networks:
+      - bank-infrastructure_network
+    depends_on:
+      discovery:
+        condition: service_healthy
+
+  webapp:
+    container_name: ${WEBAPP_NAME}
+    image: bank-webapp:1.0.5
+    build:
+      context: ./webapp/.
+    networks:
+      - bank-infrastructure_network
+
+networks:
+  bank-infrastructure_network:
+    external: true

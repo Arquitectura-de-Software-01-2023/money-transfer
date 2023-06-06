@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: ${TRANSFERS_NAME:bank-transfers}
+  cloud:
+    config:
+      fail-fast: true
+  config:
+    import: configserver:http://${LOCALHOST:configuration}:${CONFIGURATION_PORT:8888}
+  profiles:
+    active: ${PROFILE:local}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/moneytransfer
+          jwk-set-uri: http://localhost:8080/realms/moneytransfer/protocol/openid-connect/certs

@@ -1,0 +1,94 @@
+version: '3.9'
+name: bank-infrastructure
+
+x-configuration-variables: &configuration-variables
+  CONFIGURATION_PORT: ${CONFIGURATION_PORT}
+  CONFIGURATION_NAME: ${CONFIGURATION_NAME}
+  CONFIGURATION_BRANCH: ${CONFIGURATION_BRANCH}
+  PROFILE: ${PROFILE}
+
+services:
+  aaa:
+    image: quay.io/keycloak/keycloak:21.0.1
+    container_name: ${KC_NAME}
+    restart: always
+    environment:
+      - KEYCLOAK_ADMIN=${KC_USER}
+      - KEYCLOAK_ADMIN_PASSWORD=${KC_USER_PASSWORD}
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=db
+      - KC_DB_URL_PORT=5432
+      - KC_DB_URL_DATABASE=${KC_DB_NAME}
+      - KC_DB_USERNAME=${DB_USER}
+      - KC_DB_PASSWORD=${DB_PASSWORD}
+    ports:
+      - '8080:8080'
+    command:
+      - start-dev
+    depends_on:
+      - db
+    networks:
+      - network
+
+  configuration:
+    container_name: ${CONFIGURATION_NAME}
+    image: bank-configuration:1.0.1
+    build:
+      context: ../../configuration/.
+    environment: 
+      <<: [*configuration-variables]
+      ENCRYPT_KEY: ${ENCRYPT_KEY}
+    ports:
+      - ${CONFIGURATION_PORT}:${CONFIGURATION_PORT}
+    networks:
+      - network
+
+  db:
+    container_name: ${DB_NAME}
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${KC_DB_NAME}
+    ports:
+      - 5432:5432
+    volumes:
+      - ../init.sql:/docker-entrypoint-initdb.d/create_databases.sql
+      - ../data/db:/var/lib/postgresql/data
+    networks:
+      - network
+  
+  rabbitmq:
+    container_name: ${RABBITMQ_NAME}
+    image: rabbitmq:3.9.29-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
+      - ${RABBITMQ_WEB_PORT}:${RABBITMQ_WEB_PORT}
+    networks:
+      - network
+
+  zipkin:
+    image: openzipkin/zipkin:2.24
+    container_name: ${ZIPKIN_NAME}
+    restart: always
+    ports:
+     - 9411:9411
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${NETWORK}.0/24
+          gateway: ${NETWORK}.1

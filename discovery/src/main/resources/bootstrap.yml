@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: ${DISCOVERY_NAME:bank-discovery}
+  cloud:
+    config:
+      fail-fast: true
+  config:
+    import: configserver:http://${LOCALHOST:configuration}:${CONFIGURATION_PORT:8888}
+  profiles:
+    active: ${PROFILE:local}

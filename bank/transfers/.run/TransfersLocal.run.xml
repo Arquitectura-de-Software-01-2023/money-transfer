@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TransfersLocal" type="Application" factoryName="Application">
+    <envs>
+      <env name="LOCALHOST" value="localhost" />
+      <env name="AAA_CLIENT_SECRET" value="changeSecret" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="ucb.arch.moneytransfer.transfers.TransfersApplicationKt" />
+    <module name="transfers" />
+    <option name="WORKING_DIRECTORY" value="$ContentRoot$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

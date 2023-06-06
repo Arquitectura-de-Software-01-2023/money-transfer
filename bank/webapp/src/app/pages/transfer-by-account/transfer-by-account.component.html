@@ -1,0 +1,32 @@
+<p>{{title}}</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Transacción</th>
+            <th>Monto</th>
+            <th>Cuenta Destino</th>
+            <th>Estado</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Descarga</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let transfer of transfers">
+            <td>{{transfer.transactionId}}</td>
+            <td>{{transfer.amount}}</td>
+            <td>{{transfer.targetAccountId}}</td>
+            <td>{{transfer.transferStatus}}</td>
+            <td>{{transfer.startedAt | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{transfer.finishedAt | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>
+                <a *ngIf="transfer.transferStatus === 'SUCCESS'"
+                    [attr.href]="'https://vouchers-mofp.s3.amazonaws.com/'+transfer.transactionId+'.pdf'" 
+                    target="_blank">
+                    <cds-icon shape="download"></cds-icon>
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>

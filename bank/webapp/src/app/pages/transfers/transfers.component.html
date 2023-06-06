@@ -1,0 +1,27 @@
+<h1>Transferencias</h1>
+
+<form clrForm [formGroup]="transferForm">
+    <div class="clr-form-control">
+        <clr-select-container>
+            <label>Cuenta de los fondos</label>
+            <select clrSelect name="sourceAccount" formControlName="sourceAccount" class="clr-select">
+              <option *ngFor="let account of accounts" [value]="account.number"> {{ account.number }} | {{ account.balance}} | {{account.currency}}</option>
+            </select>
+        </clr-select-container>
+        <clr-select-container>
+            <label>Cuenta de los fondos</label>
+            <select clrSelect name="targetBank" formControlName="targetBank" class="clr-select">
+              <option *ngFor="let bank of banks" [value]="bank.code"> {{ bank.name }} | {{ bank.code}}</option>
+            </select>
+        </clr-select-container>
+        <clr-input-container>
+            <label>Cuenta destino</label>
+            <input clrInput type="text" formControlName="targetAccount" class="clr-Input" name="targetAccount" />
+        </clr-input-container>
+        <clr-input-container>
+            <label>Monto</label>
+            <input clrInput type="text" formControlName="amount" class="clr-Input" name="amount" />
+        </clr-input-container>
+        <button class="btn btn-primary" (click)="createTransfer()">Transferir</button>
+    </div>
+</form>
